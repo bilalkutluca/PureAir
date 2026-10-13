@@ -1,0 +1,54 @@
+.clock-container {
+    position: fixed; /* Sabit konumda kalır */
+    bottom: 20px; /* Alttan 20px boşluk */
+    right: 20px; /* Sağdan 20px boşluk */
+    width: 160px; /* Weather’dan biraz farklı genişlik */
+    height: 110px; /* Weather’dan biraz farklı yükseklik */
+    background: linear-gradient(135deg, #D0E7F9 0%, #E6F0FA 100%); /* Ters gradyan yönü */
+    border-radius: 20px; /* Daha yuvarlak köşeler */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); /* Daha hafif gölge */
+    border: 1px solid rgba(255, 255, 255, 0.9); /* Weather’a yakın ama daha parlak kenar */
+    padding: 12px; /* Hafif farklı iç boşluk */
+    z-index: 1000; /* Üstte kalır */
+    backdrop-filter: blur(6px); /* Weather’dan biraz daha yoğun bulanıklık */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover geçişi */
+    /* Hafif kavisli alt kenar için clip-path */
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 80%,
+      80% 100%,
+      20% 100%,
+      0 80%
+    );
+}
+
+.clock-container:hover {
+    transform: translateY(-3px); /* Weather’dan farklı: yukarı kayma efekti */
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12); /* Hover’da hafif gölge artışı */
+}
+
+.clock-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.clock-info {
+    display: flex;
+    flex-direction: column; /* Dikey hizalama */
+    text-align: center; /* Ortalanmış yazı */
+}
+
+.time {
+    font-size: 22px; /* Weather’dan biraz büyük */
+    font-weight: 600; /* Hafif daha ince */
+    color: #5A6F80; /* Weather’dan farklı, daha koyu mavi-gri ton */
+}
+
+.date {
+    font-size: 13px; /* Weather’dan biraz küçük */
+    color: #B0C4D8; /* Weather’a yakın ama daha açık ton */
+    text-transform: uppercase; /* Weather’dan farklı: tamamen büyük harf */
+}

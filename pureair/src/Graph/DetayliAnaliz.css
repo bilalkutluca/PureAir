@@ -1,0 +1,213 @@
+/* src/DetayliAnaliz.css */
+.detayli-analiz-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  background-color: #f5f5f5;
+  padding: 20px;
+  box-sizing: border-box;
+  background-image: url('/arkaplan3.png');
+}
+
+.detayli-analiz-title {
+  font-size: 32px;
+  color: #34495e;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff;
+  padding: 12px 24px;
+  border: 2px solid #607D8B;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(44, 62, 80, 0.10);
+  margin-bottom: 24px;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.detayli-analiz-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 90px;
+}
+
+.legend-container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  padding: 18px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.legend-title {
+  font-size: 19px;
+  font-weight: bold;
+  color: #34495e;
+  margin-bottom: 12px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  color: #607D8B;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.legend-color.anomaly-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff9800;
+}
+
+.alert-panel {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  padding: 24px 18px;
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 20px;
+}
+
+.alert-panel.no-anomaly {
+  text-align: center;
+  color: #607D8B;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+}
+
+.alert-title {
+  font-size: 21px;
+  font-weight: bold;
+  color: #ff9800;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.anomaly-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f9f9fb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(44,62,80,0.05);
+}
+
+.anomaly-table th,
+.anomaly-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e0e6ed;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+}
+
+.anomaly-table th {
+  background: #f5f7fa;
+  font-weight: bold;
+  color: #34495e;
+}
+
+.anomaly-reason {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.graph-menu {
+  position: fixed;
+  top: 200px;
+  right: 20px;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 9999;
+}
+
+.graph-icon {
+  font-size: 20px;
+  border: 2px solid white;
+  border-radius: 20%;
+  padding: 8px;
+  background-color: #fff;
+  color: gray;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.graph-icon:hover {
+  background-color: #e6f0fa;
+}
+
+.pureair-logo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 100px;
+  z-index: 5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detayli-analiz-container {
+    padding: 10px;
+  }
+  .detayli-analiz-title {
+    font-size: 24px;
+    padding: 8px 12px;
+  }
+  .detayli-analiz-content {
+    margin-top: 65px;
+  }
+  .legend-container,
+  .alert-panel {
+    max-width: 95vw;
+    padding: 10px;
+  }
+  .legend-title {
+    font-size: 16px;
+  }
+  .legend-item {
+    font-size: 13px;
+  }
+  .alert-title {
+    font-size: 17px;
+  }
+  .anomaly-table th,
+  .anomaly-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detayli-analiz-title {
+    font-size: 18px;
+    padding: 5px 6px;
+  }
+  .detayli-analiz-content {
+    margin-top: 45px;
+  }
+}

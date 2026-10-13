@@ -1,0 +1,107 @@
+services:
+    timescale:
+        image: timescale/timescaledb:latest-pg14
+        env_file:
+            - .env
+        volumes:
+            - timescale_data:/var/lib/postgresql/data
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        ports:
+            - "5432:5432"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: on-failure
+        networks:
+            - pureair-network
+
+    kafka:
+        image: confluentinc/cp-kafka:7.2.1
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        depends_on:
+            - zookeeper
+        ports:
+            - "9092:9092"
+        healthcheck:
+            test: ["CMD", "kafka-topics", "--list", "--bootstrap-server", "localhost:9092"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: on-failure
+        networks:
+            - pureair-network
+
+    zookeeper:
+        image: confluentinc/cp-zookeeper:7.2.1
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+            ZOOKEEPER_TICK_TIME: 2000
+        ports:
+            - "2181:2181"
+        healthcheck:
+            test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: on-failure
+        networks:
+            - pureair-network
+
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://timescale:5432/pureair
+            - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+            - SPRING_PROFILES_ACTIVE=prod
+        depends_on:
+            timescale:
+                condition: service_healthy
+            kafka:
+                condition: service_healthy
+        ports:
+            - "8081:8080"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: on-failure
+        networks:
+            - pureair-network
+
+    frontend:
+        build:
+            context: ../pureair
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - "5173:5173"
+        depends_on:
+            - backend
+        volumes:
+            - ../pureair:/app
+            - /app/node_modules
+        restart: on-failure
+        environment:
+            - NODE_ENV=production
+            - VITE_API_URL=http://localhost:8081
+        networks:
+            - pureair-network
+
+volumes:
+    timescale_data:
+
+networks:
+    pureair-network:
+        driver: bridge

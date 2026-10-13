@@ -1,0 +1,60 @@
+.weather-container {
+  position: fixed; /* Sabit konumda kalır */
+  bottom: 20px; /* Alttan 20px boşluk */
+  left: 20px; /* Soldan 20px boşluk */
+  width: 160px; /* Clock ile aynı genişlik */
+  height: 110px; /* Clock ile aynı yükseklik */
+  background: linear-gradient(135deg, #D0E7F9 0%, #E6F0FA 100%); /* Clock ile aynı ters gradyan */
+  border-radius: 20px; /* Clock ile aynı yuvarlak köşeler */
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); /* Clock ile aynı hafif gölge */
+  border: 1px solid rgba(255, 255, 255, 0.9); /* Clock ile aynı parlak kenar */
+  padding: 12px; /* Clock ile aynı iç boşluk */
+  z-index: 1000; /* Üstte kalır */
+  backdrop-filter: blur(6px); /* Clock ile aynı yoğun bulanıklık */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover geçişi */
+  /* Clock ile aynı kavisli alt kenar için clip-path */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 80%,
+    80% 100%,
+    20% 100%,
+    0 80%
+  );
+}
+
+.weather-container:hover {
+  transform: translateY(-3px); /* Clock ile aynı yukarı kayma efekti */
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12); /* Clock ile aynı hover gölgesi */
+}
+
+.weather-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.weather-icon {
+  width: 40px; /* Simge genişliği */
+  height: 40px; /* Simge yüksekliği */
+  margin-right: 10px; /* Sağdan boşluk */
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2)); /* Simgeye hafif gölge */
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column; /* Dikey hizalama */
+}
+
+.temperature {
+  font-size: 22px; /* Clock ile aynı */
+  font-weight: 600; /* Clock ile aynı */
+  color: #5A6F80; /* Clock ile aynı koyu mavi-gri ton */
+}
+
+.description {
+  font-size: 13px; /* Clock ile aynı */
+  color: #B0C4D8; /* Clock ile aynı açık ton */
+  text-transform: uppercase; /* Clock ile aynı tamamen büyük harf */
+}

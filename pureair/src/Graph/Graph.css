@@ -1,0 +1,150 @@
+/* src/Graph/Graph.css */
+.graph-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  background-color: #f5f5f5;
+  padding: 20px;
+  box-sizing: border-box;
+      background-image: url('/arkaplan3.png');
+}
+
+.graph-title {
+  font-size: 32px;
+  color: #34495e;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff;
+  padding: 12px 24px;
+  border: 2px solid #607D8B;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(44, 62, 80, 0.10);
+  margin-bottom: 24px;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.graph-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 80px; /* Başlık için yer aç */
+}
+
+.pollution-chart-container {
+  width: 100%;
+  max-width: 1000px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.graph-menu {
+  position: fixed;
+  top: 200px;
+  right: 20px;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 9999;
+}
+
+.graph-icon {
+  font-size: 20px;
+  border: 2px solid white;
+  border-radius: 20%;
+  padding: 8px;
+  background-color: #fff;
+  color: gray;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.graph-icon:hover {
+  background-color: #e6f0fa;
+}
+
+.pureair-logo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 100px;
+  z-index: 5;
+}
+
+/* Responsive Ayarları */
+@media (max-width: 768px) {
+  .graph-container {
+    padding: 10px;
+  }
+
+  .graph-title {
+    font-size: 24px;
+    padding: 6px 12px;
+  }
+
+  .graph-content {
+    margin-top: 60px;
+  }
+
+  .pollution-chart-container {
+    max-width: 90vw;
+    padding: 10px;
+  }
+
+  .graph-menu {
+    top: 150px;
+    right: 10px;
+    width: 50px;
+  }
+
+  .graph-icon {
+    font-size: 18px;
+    padding: 6px;
+  }
+
+  .pureair-logo {
+    width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .graph-title {
+    font-size: 20px;
+    padding: 5px 10px;
+  }
+
+  .graph-content {
+    margin-top: 50px;
+  }
+
+  .pollution-chart-container {
+    max-width: 90vw;
+  }
+
+  .graph-menu {
+    top: 120px;
+    right: 5px;
+    width: 40px;
+  }
+
+  .graph-icon {
+    font-size: 16px;
+    padding: 5px;
+  }
+
+  .pureair-logo {
+    width: 60px;
+  }
+}
