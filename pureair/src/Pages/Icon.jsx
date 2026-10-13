@@ -64,7 +64,7 @@ function Icon({ zoom, setZoom }) {
       <div className="icon menu-icon" onClick={toggleSearch}>
         <FontAwesomeIcon icon={faMagnifyingGlass} title="Search" />
         {isSearchOpen && (
-          <div className="search-dropdown">
+          <div className="search-dropdown" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
               value={searchQuery}

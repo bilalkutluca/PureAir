@@ -15,6 +15,8 @@ function Graph() {
     const loadData = async () => {
       try {
         const airQualityData = await fetchAirQualityData();
+        // zaman ekseni düzgün çıksın diye eskiden yeniye sırala
+        airQualityData.sort((a, b) => a.time.localeCompare(b.time));
         setData(airQualityData);
         setLoading(false);
       } catch (err) {

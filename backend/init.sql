@@ -1,3 +1,7 @@
+-- /region sorgusundaki earth_distance icin
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS earthdistance;
+
 CREATE TABLE IF NOT EXISTS air_quality (
     time TIMESTAMPTZ NOT NULL,
     latitude DOUBLE PRECISION NOT NULL,
