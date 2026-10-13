@@ -45,4 +45,7 @@ public class AirQuality {
 
     @Column(name = "anomaly")
     private Boolean anomaly;
+
+    @Column(name = "city")
+    private String city;
 }

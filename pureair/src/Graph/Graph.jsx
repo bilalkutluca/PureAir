@@ -4,7 +4,7 @@ import GraphLogo from './GraphLogo';
 import GraphPage from './GraphPage';
 import GraphMenu from './GraphMenu';
 import './Graph.css';
-import { fetchAirQualityData } from '../services/apiService';
+import { fetchAirQualityTrend } from '../services/apiService';
 
 function Graph() {
   const [data, setData] = useState([]);
@@ -14,9 +14,8 @@ function Graph() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const airQualityData = await fetchAirQualityData();
-        // zaman ekseni düzgün çıksın diye eskiden yeniye sırala
-        airQualityData.sort((a, b) => a.time.localeCompare(b.time));
+        // tüm şehirlerin saatlik ortalaması, son 3 gün
+        const airQualityData = await fetchAirQualityTrend(72);
         setData(airQualityData);
         setLoading(false);
       } catch (err) {

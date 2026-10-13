@@ -4,16 +4,23 @@ function Notifications() {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8081/ws/notifications');
+    const ws = new WebSocket('ws://localhost:8081/ws');
 
     ws.onopen = () => {
       console.log('WebSocket bağlantısı kuruldu');
     };
 
     ws.onmessage = (event) => {
-      const message = event.data;
+      let message = event.data;
+      try {
+        const a = JSON.parse(event.data);
+        const place = a.city || `${a.latitude}, ${a.longitude}`;
+        message = `${place} - PM2.5: ${a.pm25}, PM10: ${a.pm10}, NO2: ${a.no2}, SO2: ${a.so2}, O3: ${a.o3} µg/m³`;
+      } catch (e) {
+        // JSON değilse olduğu gibi göster
+      }
       setNotifications(prev => [
-        { id: Date.now(), message },
+        { id: Date.now() + Math.random(), message },
         ...prev.slice(0, 9) // Son 10 bildirimi tut
       ]);
     };

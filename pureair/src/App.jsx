@@ -16,7 +16,7 @@ import Notifications from "./Pages/Notifications";
 
 
 function App() {
-  const [zoom, setZoom] = useState(10);
+  const [zoom, setZoom] = useState(3);
 
   return (
     <Router>

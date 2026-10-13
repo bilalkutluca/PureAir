@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import AlertPanel from './AlertPanel';
 import GraphLogo from './GraphLogo';
 import DetayliAnalizMenü from './DetayliAnalizMenü';
+import PollutionGraph from './PollutionGraph';
 import './DetayliAnaliz.css';
 import { useLocation } from 'react-router-dom';
-import { fetchAirQualityDataByLocation } from '../services/apiService';
+import { fetchAirQualityDataByLocation, fetchAirQualityTrend, fetchLatestAirQuality } from '../services/apiService';
 
 function DetayliAnaliz() {
   const location = useLocation();
-  const { lat, lng } = location.state || {};
+  const { lat, lng, city } = location.state || {};
 
   const [data, setData] = useState([]);
+  const [trend, setTrend] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,10 +20,21 @@ function DetayliAnaliz() {
     const loadData = async () => {
       try {
         if (lat && lng) {
-          const airQualityData = await fetchAirQualityDataByLocation(lat, lng);
+          // seçilen bölge: saatlik trend + bölgedeki ölçümler
+          const [regionTrend, airQualityData] = await Promise.all([
+            fetchAirQualityTrend(72, lat, lng),
+            fetchAirQualityDataByLocation(lat, lng),
+          ]);
+          setTrend(regionTrend);
           setData(airQualityData);
         } else {
-          setData([]);
+          // konum seçilmediyse dünya geneli: ortalama trend + şehirlerin son ölçümleri
+          const [worldTrend, latest] = await Promise.all([
+            fetchAirQualityTrend(72),
+            fetchLatestAirQuality(),
+          ]);
+          setTrend(worldTrend);
+          setData(latest);
         }
         setLoading(false);
       } catch (err) {
@@ -33,7 +46,11 @@ function DetayliAnaliz() {
     loadData();
   }, [lat, lng]);
 
-  const anomalies = data.filter(item => item.anomaly);
+  // en yeni / en kirli anomaliler üstte, tablo çok uzamasın diye ilk 25
+  const anomalies = data
+    .filter(item => item.anomaly)
+    .sort((a, b) => (lat && lng) ? b.time.localeCompare(a.time) : b.PM25 - a.PM25)
+    .slice(0, 25);
 
   if (loading) return <div>Yükleniyor...</div>;
   if (error) return <div>Hata: {error}</div>;
@@ -41,11 +58,14 @@ function DetayliAnaliz() {
 return (
   <div className="detayli-analiz-container">
     <h1 className="detayli-analiz-title">Detailed Analysis and Anomalous Values</h1>
-    {lat && lng && (
-      <p>Selected Region: Latitude: {lat.toFixed(4)}, Longitude: {lng.toFixed(4)}</p>
-    )}
     <GraphLogo />
     <div className="detayli-analiz-content">
+      <div className="detayli-analiz-region">
+        {lat && lng
+          ? <>Selected Region: <strong>{city || `${lat.toFixed(4)}, ${lng.toFixed(4)}`}</strong> (last 3 days, hourly)</>
+          : <>Worldwide average of all cities (last 3 days, hourly). Pick a city on the map for regional analysis.</>}
+      </div>
+      <PollutionGraph data={trend} />
       <div className="legend-container">
         <h3 className="legend-title">Line Descriptions</h3>
         <div className="legend-item">

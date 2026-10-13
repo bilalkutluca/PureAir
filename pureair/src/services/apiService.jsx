@@ -23,22 +23,24 @@ const retry = async (fn, retries = 3, delay = 1000) => {
   }
 };
 
+const transformItem = (item) => ({
+  time: new Date(item.time).toISOString(),
+  PM25: item.pm25 ?? 0,
+  PM10: item.pm10 ?? 0,
+  NO2: item.no2 ?? 0,
+  SO2: item.so2 ?? 0,
+  O3: item.o3 ?? 0,
+  anomaly: item.anomaly ?? false,
+  latitude: item.latitude,
+  longitude: item.longitude,
+  city: item.city ?? null
+});
+
 export const fetchAirQualityData = async () => {
   try {
     const response = await retry(() => axiosInstance.get('/data'));
     console.log('fetchAirQualityData response:', response.data);
-    const transformedData = response.data.map(item => ({
-      time: new Date(item.time).toISOString(),
-      PM25: item.pm25 ?? 0,
-      PM10: item.pm10 ?? 0,
-      NO2: item.no2 ?? 0,
-      SO2: item.so2 ?? 0,
-      O3: item.o3 ?? 0,
-      anomaly: item.anomaly ?? false,
-      latitude: item.latitude,
-      longitude: item.longitude
-    }));
-    return transformedData;
+    return response.data.map(transformItem);
   } catch (error) {
     console.error('Error fetching air quality data:', error.message, error.response?.data);
     throw new Error(`Hava kalitesi verileri alınamadı: ${error.message}`);
@@ -47,25 +49,41 @@ export const fetchAirQualityData = async () => {
 
 export const fetchAirQualityDataByLocation = async (lat, lng) => {
   try {
-    const radius = 10;
+    const radius = 50;
     const response = await retry(() => axiosInstance.get('/region', {
       params: { latitude: lat, longitude: lng, radius }
     }));
     console.log('fetchAirQualityDataByLocation response:', response.data);
-    const transformedData = response.data.map(item => ({
-      time: new Date(item.time).toISOString(),
-      PM25: item.pm25 ?? 0,
-      PM10: item.pm10 ?? 0,
-      NO2: item.no2 ?? 0,
-      SO2: item.so2 ?? 0,
-      O3: item.o3 ?? 0,
-      anomaly: item.anomaly ?? false,
-      latitude: item.latitude,
-      longitude: item.longitude
-    }));
-    return transformedData;
+    return response.data.map(transformItem);
   } catch (error) {
     console.error('Error fetching air quality data by location:', error.message, error.response?.data);
     throw new Error(`Bölge için hava kalitesi verileri alınamadı: ${error.message}`);
+  }
+};
+
+// Her konumun en güncel ölçümü (harita)
+export const fetchLatestAirQuality = async () => {
+  try {
+    const response = await retry(() => axiosInstance.get('/latest'));
+    return response.data.map(transformItem);
+  } catch (error) {
+    console.error('Error fetching latest air quality data:', error.message, error.response?.data);
+    throw new Error(`Güncel hava kalitesi verileri alınamadı: ${error.message}`);
+  }
+};
+
+// Saatlik ortalamalar; konum verilmezse dünya geneli
+export const fetchAirQualityTrend = async (hours = 72, lat, lng) => {
+  try {
+    const params = { hours };
+    if (lat != null && lng != null) {
+      params.latitude = lat;
+      params.longitude = lng;
+    }
+    const response = await retry(() => axiosInstance.get('/trend', { params }));
+    return response.data.map(transformItem);
+  } catch (error) {
+    console.error('Error fetching air quality trend:', error.message, error.response?.data);
+    throw new Error(`Hava kalitesi trendi alınamadı: ${error.message}`);
   }
 };

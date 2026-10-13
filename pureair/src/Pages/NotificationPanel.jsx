@@ -74,14 +74,14 @@ const NotificationPanel = () => {
                   {anomalies.slice(-5).map((anomaly, index) => (
                     <li key={index} className="anomaly-item">
                       <strong>Time:</strong> {new Date(anomaly.time).toLocaleString()}<br />
-                      <strong>Location:</strong> {anomaly.latitude.toFixed(4)}, {anomaly.longitude.toFixed(4)}<br />
+                      <strong>Location:</strong> {anomaly.city || `${anomaly.latitude.toFixed(4)}, ${anomaly.longitude.toFixed(4)}`}<br />
                       <strong>Parameters:</strong>
                       <ul>
-                        {anomaly.PM25 && <li>PM2.5: {anomaly.PM25} µg/m³</li>}
-                        {anomaly.PM10 && <li>PM10: {anomaly.PM10} µg/m³</li>}
-                        {anomaly.NO2 && <li>NO2: {anomaly.NO2} µg/m³</li>}
-                        {anomaly.SO2 && <li>SO2: {anomaly.SO2} µg/m³</li>}
-                        {anomaly.O3 && <li>O3: {anomaly.O3} µg/m³</li>}
+                        {anomaly.pm25 != null && <li>PM2.5: {anomaly.pm25} µg/m³</li>}
+                        {anomaly.pm10 != null && <li>PM10: {anomaly.pm10} µg/m³</li>}
+                        {anomaly.no2 != null && <li>NO2: {anomaly.no2} µg/m³</li>}
+                        {anomaly.so2 != null && <li>SO2: {anomaly.so2} µg/m³</li>}
+                        {anomaly.o3 != null && <li>O3: {anomaly.o3} µg/m³</li>}
                       </ul>
                     </li>
                   ))}

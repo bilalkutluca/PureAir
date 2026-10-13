@@ -34,6 +34,21 @@ public class AirQualityController {
         return ResponseEntity.ok(data);
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<List<AirQualityDTO>> getLatestAirQualityData(
+            @RequestParam(defaultValue = "24") long hours) {
+        return ResponseEntity.ok(airQualityService.getLatestPerLocation(hours));
+    }
+
+    @GetMapping("/trend")
+    public ResponseEntity<List<AirQualityDTO>> getAirQualityTrend(
+            @RequestParam(defaultValue = "72") long hours,
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(defaultValue = "50") double radius) {
+        return ResponseEntity.ok(airQualityService.getHourlyTrend(hours, latitude, longitude, radius));
+    }
+
     @PostMapping
     public ResponseEntity<AirQualityDTO> saveAirQualityData(@RequestBody AirQualityDTO airQualityDTO) {
         airQualityService.saveAirQualityData(airQualityDTO);

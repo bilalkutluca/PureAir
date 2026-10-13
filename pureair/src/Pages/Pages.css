@@ -282,3 +282,14 @@
   margin-top: 4px;
   font-weight: 600;
 }
+.popup-detail-link {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1565c0;
+  cursor: pointer;
+}
+
+.popup-detail-link:hover {
+  text-decoration: underline;
+}

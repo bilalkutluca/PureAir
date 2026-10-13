@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,10 +17,13 @@ import java.util.stream.Collectors;
 public class AirQualityService {
 
     private final AirQualityRepository airQualityRepository;
+    private final AnomalyDetectionService anomalyDetectionService;
 
     @Autowired
-    public AirQualityService(AirQualityRepository airQualityRepository) {
+    public AirQualityService(AirQualityRepository airQualityRepository,
+                             AnomalyDetectionService anomalyDetectionService) {
         this.airQualityRepository = airQualityRepository;
+        this.anomalyDetectionService = anomalyDetectionService;
     }
 
     public AirQuality saveAirQualityData(AirQualityDTO airQualityDTO) {
@@ -32,6 +37,7 @@ public class AirQualityService {
         airQuality.setSo2(airQualityDTO.getSo2());
         airQuality.setO3(airQualityDTO.getO3());
         airQuality.setAnomaly(airQualityDTO.getAnomaly());
+        airQuality.setCity(airQualityDTO.getCity());
         System.out.println("Saving air quality data with anomaly: " + airQuality.getAnomaly());
         return airQualityRepository.save(airQuality);
     }
@@ -63,6 +69,41 @@ public class AirQualityService {
                 .collect(Collectors.toList());
     }
 
+    // Haritada gösterilecek, konum başına en güncel ölçüm
+    public List<AirQualityDTO> getLatestPerLocation(long hoursAgo) {
+        return airQualityRepository.findLatestPerLocation(ZonedDateTime.now().minusHours(hoursAgo))
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Saatlik ortalama; konum verilirse sadece o bölge, verilmezse tüm dünya
+    public List<AirQualityDTO> getHourlyTrend(long hoursAgo, Double latitude, Double longitude, double radius) {
+        ZonedDateTime since = ZonedDateTime.now().minusHours(hoursAgo);
+        List<Object[]> rows = (latitude != null && longitude != null)
+                ? airQualityRepository.findHourlyAveragesByLocation(since, latitude, longitude, radius)
+                : airQualityRepository.findHourlyAverages(since);
+
+        return rows.stream().map(row -> {
+            AirQuality avg = new AirQuality();
+            avg.setTime(Instant.ofEpochSecond(((Number) row[0]).longValue()).atZone(ZoneOffset.UTC));
+            avg.setLatitude(latitude);
+            avg.setLongitude(longitude);
+            avg.setPm25(round(row[1]));
+            avg.setPm10(round(row[2]));
+            avg.setNo2(round(row[3]));
+            avg.setSo2(round(row[4]));
+            avg.setO3(round(row[5]));
+            avg.setAnomaly(anomalyDetectionService.isAnyAnomaly(avg, null));
+            return convertToDTO(avg);
+        }).collect(Collectors.toList());
+    }
+
+    private Double round(Object value) {
+        if (value == null) return null;
+        return Math.round(((Number) value).doubleValue() * 100.0) / 100.0;
+    }
+
     private AirQualityDTO convertToDTO(AirQuality airQuality) {
         AirQualityDTO dto = new AirQualityDTO();
         dto.setTime(airQuality.getTime());
@@ -74,6 +115,7 @@ public class AirQualityService {
         dto.setSo2(airQuality.getSo2());
         dto.setO3(airQuality.getO3());
         dto.setAnomaly(airQuality.getAnomaly());
+        dto.setCity(airQuality.getCity());
         return dto;
     }
 }

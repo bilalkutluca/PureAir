@@ -3,6 +3,7 @@ package com.backend.PureairBackend.service;
 import com.backend.PureairBackend.dto.AirQualityDTO;
 import com.backend.PureairBackend.entity.AirQuality;
 import com.backend.PureairBackend.config.WebSocketController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +17,18 @@ public class RawDataConsumer {
     private final AirQualityService airQualityService;
     private final AnomalyDetectionService anomalyDetectionService;
     private final WebSocketController webSocketController;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public RawDataConsumer(
             AirQualityService airQualityService,
             AnomalyDetectionService anomalyDetectionService,
-            WebSocketController webSocketController) {
+            WebSocketController webSocketController,
+            ObjectMapper objectMapper) {
         this.airQualityService = airQualityService;
         this.anomalyDetectionService = anomalyDetectionService;
         this.webSocketController = webSocketController;
+        this.objectMapper = objectMapper;
     }
 
     @KafkaListener(topics = "raw-air-quality", groupId = "pureair-consumer")
@@ -41,6 +45,7 @@ public class RawDataConsumer {
         airQuality.setSo2(airQualityDTO.getSo2());
         airQuality.setO3(airQualityDTO.getO3());
         airQuality.setAnomaly(airQualityDTO.getAnomaly());
+        airQuality.setCity(airQualityDTO.getCity());
 
         try {
             boolean isAnomaly = anomalyDetectionService.isAnyAnomaly(airQuality, null);
@@ -48,7 +53,8 @@ public class RawDataConsumer {
                 logger.info("Anomaly detected for data: {}", airQualityDTO);
                 airQuality.setAnomaly(true);
                 airQualityDTO.setAnomaly(true);
-                webSocketController.sendAnomalyNotification("New anomaly detected: " + airQualityDTO.toString());
+                // frontend JSON bekliyor
+                webSocketController.sendAnomalyNotification(objectMapper.writeValueAsString(airQualityDTO));
             }
         } catch (Exception e) {
             logger.error("An error occurred during anomaly detection", e);

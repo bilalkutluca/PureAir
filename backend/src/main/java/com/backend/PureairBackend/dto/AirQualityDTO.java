@@ -17,5 +17,6 @@ public class AirQualityDTO {
     private Double so2;
     private Double o3;
     private Boolean anomaly;
+    private String city;
 
 }

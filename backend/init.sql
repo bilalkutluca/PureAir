@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS air_quality (
     no2 DOUBLE PRECISION,
     so2 DOUBLE PRECISION,
     o3 DOUBLE PRECISION,
-    anomaly BOOLEAN DEFAULT FALSE
+    anomaly BOOLEAN DEFAULT FALSE,
+    city TEXT
 );
 
 SELECT create_hypertable('air_quality', 'time', if_not_exists => TRUE);

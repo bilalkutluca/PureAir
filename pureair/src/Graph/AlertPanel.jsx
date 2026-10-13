@@ -17,6 +17,7 @@ function AlertPanel({ anomalies }) {
       <table className="anomaly-table">
         <thead>
           <tr>
+            <th>Location</th>
             <th>Time</th>
             <th>Values</th>
             <th>Reason</th>
@@ -30,11 +31,12 @@ function AlertPanel({ anomalies }) {
             if (item.PM10 > 50) reasons.push(`PM10: ${item.PM10} (Threshold: 50)`);
             if (item.NO2 > 40) reasons.push(`NO2: ${item.NO2} (Threshold: 40)`);
             if (item.SO2 > 20) reasons.push(`SO2: ${item.SO2} (Threshold: 20)`);
-            if (item.O3 > 50) reasons.push(`O3: ${item.O3} (Threshold: 50)`);
+            if (item.O3 > 100) reasons.push(`O3: ${item.O3} (Threshold: 100)`);
 
             return (
               <tr key={index}>
-                <td>{item.time}</td>
+                <td>{item.city || `${Number(item.latitude).toFixed(2)}, ${Number(item.longitude).toFixed(2)}`}</td>
+                <td>{new Date(item.time).toLocaleString()}</td>
                 <td>
                   PM2.5: {item.PM25}, PM10: {item.PM10}, NO2: {item.NO2}, SO2: {item.SO2}, O3: {item.O3}
                 </td>

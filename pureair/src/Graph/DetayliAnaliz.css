@@ -211,3 +211,15 @@
     margin-top: 45px;
   }
 }
+.detayli-analiz-region {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  padding: 10px 18px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 1000px;
+  font-family: 'Montserrat', sans-serif;
+  color: #34495e;
+  box-sizing: border-box;
+}

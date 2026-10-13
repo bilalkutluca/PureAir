@@ -49,7 +49,7 @@ function Icon({ zoom, setZoom }) {
   };
 
   const handleSelectLocation = (lat, lon) => {
-    setZoom(13);
+    setZoom(9);
     navigate('/map', { state: { lat: parseFloat(lat), lng: parseFloat(lon) } }); // Koordinatları state ile geçir
     setSearchQuery('');
     setSearchResults([]);

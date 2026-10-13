@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat'; // Heatmap için gerekli
 import { useNavigate, useLocation } from 'react-router-dom';
-import { fetchAirQualityData } from '../services/apiService';
+import { fetchLatestAirQuality } from '../services/apiService';
 
 const heatGradient = {
   0.0: '#00FF00',
@@ -13,6 +13,16 @@ const heatGradient = {
   0.6: '#FF0000',
   0.8: '#800080',
   1.0: '#8B0000',
+};
+
+// PM2.5 değerine göre nokta rengi (alttaki skala ile aynı renkler)
+const getColor = (pm25) => {
+  if (pm25 <= 12) return '#2ecc40';
+  if (pm25 <= 25) return '#e6c700';
+  if (pm25 <= 50) return '#FFA500';
+  if (pm25 <= 75) return '#FF0000';
+  if (pm25 <= 100) return '#800080';
+  return '#8B0000';
 };
 
 function MapUpdater({ zoom, center, setZoom }) {
@@ -38,10 +48,12 @@ function HeatLayer({ points }) {
   useEffect(() => {
     if (points.length === 0) return;
 
+    // maxZoom küçük tutulmazsa uzak zoom'da ısı katmanı neredeyse görünmüyor
     const layer = (window.L.heatLayer || L.heatLayer)(points, {
-      radius: 25,
-      blur: 15,
-      maxZoom: 17,
+      radius: 22,
+      blur: 18,
+      maxZoom: 2,
+      minOpacity: 0.25,
       gradient: heatGradient,
     }).addTo(map);
 
@@ -54,11 +66,9 @@ function HeatLayer({ points }) {
 }
 
 function Map({ zoom, setZoom }) {
-  const [pollutionData, setPollutionData] = useState([]);
-  const [anomalyData, setAnomalyData] = useState([]);
-  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [stations, setStations] = useState([]);
   const [error, setError] = useState(null);
-  const defaultPosition = [41.0082, 28.9784];
+  const defaultPosition = [25, 15]; // dünya görünümü
   const [center, setCenter] = useState(defaultPosition);
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,21 +83,12 @@ function Map({ zoom, setZoom }) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const airQualityData = await fetchAirQualityData();
-        // latitude ve longitude'ları number'a çeviriyoruz!
-        const formattedData = airQualityData.map(item => [
-          Number(item.latitude),
-          Number(item.longitude),
-          calculateIntensity(item),
-        ]);
-        const anomalies = airQualityData.filter(item => item.anomaly);
-        setPollutionData(formattedData);
-        setAnomalyData(anomalies);
+        const airQualityData = await fetchLatestAirQuality();
+        setStations(airQualityData);
         setError(null);
       } catch (err) {
         setError('Hava kalitesi verileri yüklenemedi. Lütfen daha sonra tekrar deneyin.');
-        setPollutionData([]);
-        setAnomalyData([]);
+        setStations([]);
       }
     };
 
@@ -98,8 +99,16 @@ function Map({ zoom, setZoom }) {
 
   const calculateIntensity = (item) => {
     const pm25 = item.PM25 || 0;
-    return Math.min(pm25 / 100, 1);
+    // üst üste binen noktalar toplandığı için alt değerleri düşük tut
+    return Math.max(0.06, Math.min(pm25 / 100, 1));
   };
+
+  // latitude ve longitude'ları number'a çeviriyoruz!
+  const heatPoints = React.useMemo(() => stations.map(item => [
+    Number(item.latitude),
+    Number(item.longitude),
+    calculateIntensity(item),
+  ]), [stations]);
 
   return (
     <div>
@@ -109,34 +118,33 @@ function Map({ zoom, setZoom }) {
         className="map-container"
         center={center}
         zoom={zoom}
+        minZoom={2}
+        worldCopyJump={true}
         zoomControl={true}
         style={{ width: '100%', height: '100%' }}
       >
         <MapUpdater zoom={zoom} center={center} setZoom={setZoom} />
-        <HeatLayer points={pollutionData} />
+        <HeatLayer points={heatPoints} />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Air quality: <a href="https://open-meteo.com/">Open-Meteo</a>'
         />
-        {selectedPosition && (
-          <Marker position={selectedPosition}>
-            <Popup>
-              Seçilen Konum<br />Lat: {selectedPosition[0].toFixed(4)}, Lng: {selectedPosition[1].toFixed(4)}
-            </Popup>
-          </Marker>
-        )}
-        {anomalyData.map((item, index) => (
-          <Marker
+        {stations.map((item, index) => (
+          <CircleMarker
             key={index}
-            position={[Number(item.latitude), Number(item.longitude)]}
-            icon={L.divIcon({
-              className: 'anomaly-marker',
-              html: '<div style="background-color: red; width: 10px; height: 10px; border-radius: 50%;"></div>',
-              iconSize: [10, 10],
-            })}
+            center={[Number(item.latitude), Number(item.longitude)]}
+            radius={item.anomaly ? 8 : 6}
+            pathOptions={{
+              color: item.anomaly ? '#b71c1c' : '#ffffff',
+              weight: item.anomaly ? 3 : 1,
+              fillColor: getColor(item.PM25),
+              fillOpacity: 0.9,
+            }}
           >
             <Popup>
-              <div className="anomaly-popup-title">Anomaly Detected</div>
+              <div className="anomaly-popup-title">
+                {item.city || 'Measurement Point'}
+              </div>
               <div className="anomaly-popup-meta">
                 {new Date(item.time).toLocaleString()}<br />
                 Lat: {Number(item.latitude).toFixed(4)}, Lng: {Number(item.longitude).toFixed(4)}
@@ -148,9 +156,17 @@ function Map({ zoom, setZoom }) {
                 <span className="anomaly-popup-badge so2">SO2: {item.SO2} µg/m³</span>
                 <span className="anomaly-popup-badge o3">O3: {item.O3} µg/m³</span>
               </div>
-              <div className="anomaly-popup-warning">Threshold exceeded</div>
+              {item.anomaly && <div className="anomaly-popup-warning">Anomaly: threshold exceeded</div>}
+              <div
+                className="popup-detail-link"
+                onClick={() => navigate('/detayli-analiz', {
+                  state: { lat: Number(item.latitude), lng: Number(item.longitude), city: item.city },
+                })}
+              >
+                Detailed analysis →
+              </div>
             </Popup>
-          </Marker>
+          </CircleMarker>
         ))}
       </MapContainer>
     </div>
