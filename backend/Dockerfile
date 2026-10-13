@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y curl bc bash && rm -rf /var/lib/apt/lis
 COPY . /app
 
 # Maven bağımlılıklarını indir ve uygulamayı derle
-RUN ./mvnw clean package -DskipTests
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
 # JAR dosyasını çalıştır
 CMD ["java", "-jar", "target/PureairBackend-0.0.1-SNAPSHOT.jar"]
