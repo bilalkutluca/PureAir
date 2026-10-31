@@ -1,37 +1,65 @@
-# PureAir: Real-Time Air Quality Monitoring & Telemetry Platform
+# PureAir
 
-> **Collaborative Project:** Developed jointly by **Bilal Kutluca** ([@bilalkutluca](https://github.com/bilalkutluca)) and **Busenur Kutluca** ([@busenurkutluca](https://github.com/busenurkutluca)).
+![PureAir global air pollution map](docs/images/map.png)
 
----
+Real-time air quality monitoring platform. PureAir collects hourly PM2.5, PM10, NO2, SO2 and O3 data for 239 cities worldwide, detects anomalies and presents the results on an interactive map, in trend charts and as live notifications.
 
-## Project Overview & Objectives
-**PureAir** is a high-performance, real-time web platform engineered to ingest, aggregate, and visualize environmental telemetry data globally. The platform processes continuous streams of air quality metrics—via automated sensor ingestion pipelines and manual input streams—detects environmental anomalies dynamically, and delivers actionable insights to end users through interactive geospatial maps, analytical dashboards, and real-time alert dispatchers.
+Developed by **Bilal Kutluca** ([@bilalkutluca](https://github.com/bilalkutluca)) and **Busenur Kutluca** ([@busenurkutluca](https://github.com/busenurkutluca)).
 
----
+## Features
 
-## System Architecture & Key Components
-* **Backend Core:** Enterprise-grade RESTful API powered by **Java (Spring Boot)** structured around a robust monolithic architectural design.
-* **Frontend Dashboard:** Modern, reactive, and responsive user interface implemented with **React.js**, optimized for real-time telemetry rendering.
-* **Time-Series Persistence:** **TimescaleDB** (PostgreSQL-optimized time-series database engine) tuned for high-frequency write operations, data retention, and temporal analytical queries.
-* **Asynchronous Message Broker:** Distributed event streaming powered by **Apache Kafka** for decoupled message ingestion and fault-tolerant anomaly notification pipelines.
-* **Real-Time Event Dispatch:** Full-duplex **WebSocket (STOMP)** protocol layer pushing instant anomaly notifications and live sensor metric broadcasts to connected clients.
-* **Containerization & Orchestration:** Fully containerized multi-tier environment managed via **Docker & Docker Compose** for streamlined, single-command zero-downtime provisioning.
+- **Global map:** pollution heat layer and city markers colored by PM2.5 level
+- **Trend analysis:** hourly averages for the last 3 days, worldwide or for a selected city
+- **Anomaly detection:** threshold-based checks with live notifications over WebSocket
+- **Regional analysis:** city search and a detailed view with charts and anomaly history
 
----
+## Architecture
 
-## Technology Stack & Architectural Decisions
+A scheduled collector fetches air quality data from the Open-Meteo API every hour and publishes it to Apache Kafka. A Kafka consumer checks each measurement for anomalies, stores it in TimescaleDB and pushes anomalies to connected clients over WebSocket. The React frontend reads the data through a REST API. All services run in Docker containers managed by Docker Compose.
 
-| Layer / Technology | Role & Strategic Justification |
-| :--- | :--- |
-| **Java / Spring Boot** | Delivers enterprise reliability, strictly typed domain logic, built-in security, and scalable dependency management. |
-| **React.js** | Provides declarative state management and highly componentized UI structures suited for intensive live data streaming. |
-| **TimescaleDB** | Offers seamless PostgreSQL ecosystem compatibility while scaling time-series analytical performance via hypertable auto-partitioning. |
-| **Apache Kafka** | Serves as the industry-standard high-throughput, low-latency backbone for fault-tolerant data streaming and event queuing. |
-| **Docker & Compose** | Guarantees environmental parity, isolated service lifecycles, and rapid one-click deployment across environments. |
+## Tech Stack
 
----
+| Area | Technologies |
+| --- | --- |
+| Backend | Java 17, Spring Boot 3, Spring Data JPA, WebSocket |
+| Data | Apache Kafka, TimescaleDB (PostgreSQL) |
+| Frontend | React, Vite, Leaflet, Recharts |
+| Infrastructure | Docker, Docker Compose |
 
-## Contributors & Collaboration
-This project represents a joint engineering effort by:
-* **Bilal Kutluca** – [@bilalkutluca](https://github.com/bilalkutluca)
-* **Busenur Kutluca** – [@busenurkutluca](https://github.com/busenurkutluca)
+## Getting Started
+
+### Prerequisites
+
+- Docker and Docker Compose
+- An [OpenWeatherMap](https://openweathermap.org/api) API key (used for the weather widget on the home page)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/bilalkutluca/PureAir.git
+   cd PureAir
+   ```
+
+2. Create the environment files from the examples and fill in the values:
+
+   ```bash
+   cp backend/.env.example backend/.env
+   cp pureair/.env.example pureair/.env
+   ```
+
+3. Start the services:
+
+   ```bash
+   cd backend
+   docker compose up -d
+   ```
+
+The frontend runs at http://localhost:5173 and the backend at http://localhost:8081. Data collection starts automatically shortly after the backend is up.
+
+## Data Sources
+
+- Air quality: [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api)
+- Map tiles and geocoding: [OpenStreetMap](https://www.openstreetmap.org/)
+- Weather: [OpenWeatherMap](https://openweathermap.org/)
